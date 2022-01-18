@@ -666,6 +666,8 @@ const Elements = {
             panel.$.nodeScale.render(panel.dump.scale);
             panel.$.nodeLayer.render(panel.dump.layer);
 
+            console.log('啦啦啦啦啦啦阿里 panel.dump -- ', panel);
+
             // 查找需要渲染的 component 列表
             const componentList = [];
             for (let i = 0; i < panel.dump.__comps__.length; i++) {

@@ -1,4 +1,7 @@
 'use strict';
+
+const myRender = require('../myCustomRender/customRender.js');
+
 exports.template = `
 <section></section>
 `;
@@ -85,6 +88,12 @@ exports.methods = {
  * @param dumps
  */
 async function update(dump) {
+    console.log('the dumps ? ', dump);
+
+    if (dump.type === 'cc.MeshRenderer') {
+        return;
+    }
+
     const $panel = this;
     const $section = $panel.$.section;
     const oldPropList = Object.keys($panel.$propList);
@@ -103,6 +112,7 @@ async function update(dump) {
         newPropList.push(id);
         let $prop = $panel.$propList[id];
         if (!$prop) {
+            console.log('in here ?');
             $prop = document.createElement('ui-prop');
             $prop.setAttribute('type', 'dump');
             $panel.$propList[id] = $prop;
@@ -131,7 +141,11 @@ async function update(dump) {
         else if (!$prop.isConnected || !$prop.parentElement) {
             $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
         }
-        $prop.render(info);
+        console.log('the $prop --- ', $prop);
+        console.log('the info --- ', info);
+        // $prop.render(info);
+        // 自定义渲染函数
+        myRender.customRender($prop, info);
     }
     for (const id of oldPropList) {
         if (!newPropList.includes(id)) {
