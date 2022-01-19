@@ -1,4 +1,4 @@
 exports.NodeTypes = {
     theString: 'String',
-    // theNumber: 'Number',
+    theNumber: 'Number',
 };

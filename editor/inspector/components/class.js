@@ -87,8 +87,8 @@ exports.methods = {
  * 自动渲染组件的方法
  * @param dumps
  */
-async function update(dump) {
-    console.log('the dumps ? ', dump);
+async function update(dump, uuidList) {
+    // console.log('the dumps ? ', dump, uuidList);
 
     if (dump.type === 'cc.MeshRenderer') {
         return;
@@ -112,7 +112,6 @@ async function update(dump) {
         newPropList.push(id);
         let $prop = $panel.$propList[id];
         if (!$prop) {
-            console.log('in here ?');
             $prop = document.createElement('ui-prop');
             $prop.setAttribute('type', 'dump');
             $panel.$propList[id] = $prop;
@@ -141,11 +140,9 @@ async function update(dump) {
         else if (!$prop.isConnected || !$prop.parentElement) {
             $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
         }
-        console.log('the $prop --- ', $prop);
-        console.log('the info --- ', info);
         // $prop.render(info);
         // 自定义渲染函数
-        myRender.customRender($prop, info);
+        myRender.customRender($prop, info, uuidList);
     }
     for (const id of oldPropList) {
         if (!newPropList.includes(id)) {

@@ -719,7 +719,7 @@ const Elements = {
                     }
 
                     Array.prototype.forEach.call($section.__panels__, ($panel) => {
-                        $panel.update(dump);
+                        $panel.update(dump, panel.uuidList);
                     });
                 });
             } else {
@@ -827,7 +827,7 @@ const Elements = {
                         $section.appendChild($panel);
                         $section.__panels__.push($panel);
                         $panel.dump = component;
-                        $panel.update(component);
+                        $panel.update(component, panel.uuidList);
                     });
                 });
             }
