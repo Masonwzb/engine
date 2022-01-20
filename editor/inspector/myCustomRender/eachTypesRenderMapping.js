@@ -26,26 +26,27 @@ function renderLabel(parentNode, name) {
 renderMap.set(Interface.NodeTypes.theString, renderStringType);
 
 function renderStringType(parentNode, renderNode, uuidList) {
-    const { name, path, type, value } = renderNode;
+    const { name, path, type, value, readonly } = renderNode;
 
-    renderLabel(parentNode, name || '');
+    renderLabel(parentNode, name ?? '');
 
     // update the value if it already exists
     const oldInputs = parentNode.getElementsByTagName('ui-input');
     if (oldInputs?.[0]) {
-        oldInputs[0].setAttribute('value', value || '');
+        oldInputs[0].setAttribute('value', value ?? '');
         return;
     }
 
     // add node
     const $input = document.createElement('ui-input');
     $input.setAttribute('slot', 'content');
+    readonly && $input.setAttribute('readonly', readonly);
     $input.setAttribute('tabindex', '0');
-    $input.setAttribute('value', value || '');
+    $input.setAttribute('value', value ?? '');
     parentNode.appendChild($input);
 
     let inputTimeout = null;
-    function handleInput(e) {
+    function handleChange(e) {
         const value = e.target.value;
 
         // 防抖处理
@@ -61,32 +62,33 @@ function renderStringType(parentNode, renderNode, uuidList) {
             });
         }, 500);
     }
-    $input.addEventListener('input', handleInput);
+    $input.addEventListener('change', handleChange);
 }
 
 // Number type render method
 renderMap.set(Interface.NodeTypes.theNumber, renderNumberType);
 
 function renderNumberType(parentNode, renderNode, uuidList) {
-    const { name, default: theDefault, value, type, path } = renderNode;
+    const { name, default: theDefault, value, type, path, readonly } = renderNode;
 
-    renderLabel(parentNode, name || '');
+    renderLabel(parentNode, name ?? '');
 
     const oldInputNums = parentNode.getElementsByTagName('ui-num-input');
     if (oldInputNums?.[0]) {
-        oldInputNums[0].setAttribute('value', value || '');
+        oldInputNums[0].setAttribute('value', value ?? '');
         return;
     }
 
     const $inputNum = document.createElement('ui-num-input');
     $inputNum.setAttribute('slot', 'content');
+    readonly && $inputNum.setAttribute('readonly', readonly);
     $inputNum.setAttribute('tabindex', '0');
-    $inputNum.setAttribute('default', theDefault || '');
-    $inputNum.setAttribute('value', value || '');
+    $inputNum.setAttribute('default', theDefault ?? '');
+    $inputNum.setAttribute('value', value ?? '');
     parentNode.appendChild($inputNum);
 
     let inputNumTimeout = null;
-    function handleNumInput(e) {
+    function handleNumChange(e) {
         const value = e.target.value;
 
         // 防抖处理
@@ -102,7 +104,57 @@ function renderNumberType(parentNode, renderNode, uuidList) {
             });
         }, 500);
     }
-    $inputNum.addEventListener('change', handleNumInput);
+    $inputNum.addEventListener('change', handleNumChange);
+}
+
+// Enum type render method
+renderMap.set(Interface.NodeTypes.theEnum, renderEnumType);
+
+function renderEnumType(parentNode, renderNode, uuidList) {
+    const { type, name, path, readonly, value, enumList } = renderNode;
+
+    renderLabel(parentNode, name ?? '');
+
+    const oldSelects = parentNode.getElementsByTagName('ui-select');
+    if (oldSelects?.[0]) {
+        oldSelects[0].setAttribute('value', value ?? '');
+        return;
+    }
+
+    const $select = document.createElement('ui-select');
+    $select.setAttribute('slot', 'content');
+    readonly && $select.setAttribute('readonly', readonly);
+    $select.setAttribute('tabindex', '0');
+    $select.setAttribute('value', value ?? '');
+    for (let myEnum of enumList) {
+        if (!myEnum) {
+            continue;
+        }
+        const $option = document.createElement('option');
+        $option.setAttribute('value', myEnum.value ?? '');
+        $option.textContent = myEnum.name ?? '';
+        $select.appendChild($option);
+    }
+    parentNode.appendChild($select);
+
+    let selectTimeout = null;
+    function handleSelectChange(e) {
+        const value = e.target.value;
+
+        // 防抖处理
+        clearTimeout(selectTimeout);
+        selectTimeout = setTimeout(() => {
+            Editor.Message.send('scene', 'set-property', {
+                uuid: uuidList[0],
+                path,
+                dump: {
+                    type,
+                    value,
+                },
+            });
+        }, 500);
+    }
+    $select.addEventListener('change', handleSelectChange);
 }
 
 // export map

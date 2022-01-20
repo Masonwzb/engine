@@ -1,6 +1,6 @@
 'use strict';
 
-const myRender = require('../myCustomRender/customRender.js');
+const myRender = require('../myCustomRender');
 
 exports.template = `
 <section></section>
@@ -140,6 +140,8 @@ async function update(dump, uuidList) {
         else if (!$prop.isConnected || !$prop.parentElement) {
             $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
         }
+        console.log('$prop -- ', $prop);
+        console.log('info --- ', info);
         // $prop.render(info);
         // 自定义渲染函数
         myRender.customRender($prop, info, uuidList);
