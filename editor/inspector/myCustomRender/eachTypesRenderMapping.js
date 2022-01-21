@@ -10,7 +10,7 @@ function renderLabel(parentNode, name) {
 
     // update the value if it already exists
     if (oldLabels?.[0]) {
-        oldLabels[0].setAttribute('value', Util.capitalLetter(name));
+        oldLabels[0].setAttribute('value', Util.capitalLetter(name) + '-C');
         return;
     }
 
@@ -18,7 +18,7 @@ function renderLabel(parentNode, name) {
     const $label = document.createElement('ui-label');
     $label.setAttribute('slot', 'label');
     $label.setAttribute('tabindex', '-1');
-    $label.setAttribute('value', Util.capitalLetter(name));
+    $label.setAttribute('value', Util.capitalLetter(name) + '-C');
     parentNode.appendChild($label);
 }
 
@@ -37,10 +37,12 @@ function renderStringType(parentNode, renderNode, uuidList) {
         return;
     }
 
+    // add dump value
+    parentNode.setAttribute('dump', type);
     // add node
     const $input = document.createElement('ui-input');
     $input.setAttribute('slot', 'content');
-    readonly && $input.setAttribute('readonly', readonly);
+    readonly && $input.setAttribute('readonly', '');
     $input.setAttribute('tabindex', '0');
     $input.setAttribute('value', value ?? '');
     parentNode.appendChild($input);
@@ -79,9 +81,12 @@ function renderNumberType(parentNode, renderNode, uuidList) {
         return;
     }
 
+    // add dump value
+    parentNode.setAttribute('dump', type);
+    // add node
     const $inputNum = document.createElement('ui-num-input');
     $inputNum.setAttribute('slot', 'content');
-    readonly && $inputNum.setAttribute('readonly', readonly);
+    readonly && $inputNum.setAttribute('readonly', '');
     $inputNum.setAttribute('tabindex', '0');
     $inputNum.setAttribute('default', theDefault ?? '');
     $inputNum.setAttribute('value', value ?? '');
@@ -121,9 +126,12 @@ function renderEnumType(parentNode, renderNode, uuidList) {
         return;
     }
 
+    // add dump value
+    parentNode.setAttribute('dump', type);
+    // add node
     const $select = document.createElement('ui-select');
     $select.setAttribute('slot', 'content');
-    readonly && $select.setAttribute('readonly', readonly);
+    readonly && $select.setAttribute('readonly', '');
     $select.setAttribute('tabindex', '0');
     $select.setAttribute('value', value ?? '');
     for (let myEnum of enumList) {
@@ -155,6 +163,37 @@ function renderEnumType(parentNode, renderNode, uuidList) {
         }, 500);
     }
     $select.addEventListener('change', handleSelectChange);
+}
+
+// cc.Script type render method
+renderMap.set(Interface.NodeTypes.theScript, renderScriptType);
+
+function renderScriptType(parentNode, renderNode) {
+    const { displayName, name, type, value, readonly } = renderNode;
+
+    renderLabel(parentNode, displayName ?? name ?? '');
+
+    // update the value if it already exists
+    const oldScripts = parentNode.getElementsByTagName('ui-asset');
+    if (oldScripts?.[0]) {
+        oldScripts[0].setAttribute('value', value.uuid ?? '');
+        return;
+    }
+
+    // add parent node dump value
+    parentNode.setAttribute('dump', type);
+    parentNode.setAttribute('readonly', true);
+    // add node
+    const $asset = document.createElement('ui-asset');
+    $asset.setAttribute('slot', 'content');
+    readonly && $asset.setAttribute('readonly', '');
+    $asset.setAttribute('tabindex', '0');
+    $asset.setAttribute('droppable', type);
+    $asset.setAttribute('placeholder', type);
+    $asset.setAttribute('disabled', '');
+    $asset.setAttribute('effective', '');
+    $asset.setAttribute('value', value.uuid ?? '');
+    parentNode.appendChild($asset);
 }
 
 // export map
